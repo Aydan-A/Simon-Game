@@ -1,19 +1,18 @@
-
-let sounds = $("audio");
+$(document).ready(() => {
+ var colors = ["red", "green", "blue", "yellow"];
 var givenSounds = [];
 var clickedSounds = [];
 
 let isFirstTry = true;
 
-$(document).keydown("A", function () {
-    if (isFirstTry) {
-        makeSound();
-        isFirstTry = false;
-    }
+$(document).keypress(() => {
+        if (firstTime) {
+            var color = makeSound();
+            makeAnimation(color);
+            firstTime = false;
+            updateLevel();
+        }
 })
-
-
-
 
 $(".btn").click(function () {
     let parent = $(this);
@@ -66,18 +65,23 @@ $(".btn").click(function () {
 
 
 
-function makeSound() {
-    let random = Math.floor(Math.random() * 4)
-    let parent = $(sounds[random]).parent();
-    makeVisible(parent)
-    sounds[random].play()
-    givenSounds.push(sounds[random]);
-}
+function makeSound(clickedColor) {
+        var randomNumber = (Math.floor(Math.random()) * 4);
+        var color = arguments.length == 0 ? colors[randomNumber] : clickedColor;
+        var raudio = new Audio("sounds/" + color + ".mp3")
+        raudio.play()
+        givenSounds.push(color);
+        return color;
+    }
 
-function makeVisible(parent) {
-    parent.fadeIn(100).fadeOut(100).fadeIn(100);
-}
+function makeAnimation(color) {
+        $(#${color}).fadeIn(100).fadeOut(100).fadeIn(100);
+    }
 
+    function updateLevel() {
+        $("#level-title").text("Level " + givenSounds.length);
+    }
+}
 
 
 
