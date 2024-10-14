@@ -9,9 +9,9 @@ Features
 • Levels displayed to track progress.  
 
 Game Flow   
-Sequence Generation: The game randomly generates a sequence of colors that increases with each round.
-User Interaction: The player must repeat the sequence by clicking the corresponding buttons. The game checks the user’s input for accuracy.
-Game Over: If the user clicks an incorrect button, the game ends, and they can start over.
+Sequence Generation: The game randomly generates a sequence of colors that increases with each round.   
+User Interaction: The player must repeat the sequence by clicking the corresponding buttons. The game checks the user’s input for accuracy.   
+Game Over: If the user clicks an incorrect button, the game ends, and they can start over.   
 
 ## Screenshot
 
