@@ -3,76 +3,97 @@
 
 <head>
   <meta charset="utf-8">
+  <meta name="theme-color" content="#FFE27A">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Simon Game: watch the colours, repeat the sequence and see how many levels you can remember.">
   <title>Simon Game</title>
-  <link rel="stylesheet" href="simon.css?v=3">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><path d='M60 60 L8 60 A52 52 0 0 1 60 8 Z' fill='%2322A55B'/><path d='M60 60 L60 8 A52 52 0 0 1 112 60 Z' fill='%23E5484D'/><path d='M60 60 L8 60 A52 52 0 0 0 60 112 Z' fill='%23F5C518'/><path d='M60 60 L112 60 A52 52 0 0 1 60 112 Z' fill='%233B82F6'/><circle cx='60' cy='60' r='20' fill='%231F2A44'/></svg>">
+  <link rel="stylesheet" href="simon.css?v=12">
   <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
-  <script src="simon.js?v=2" charset="utf-8" defer></script>
+  <script src="simon.js?v=5" charset="utf-8" defer></script>
 </head>
-<body>
-  <button type="button" class="sound-button" aria-pressed="true" aria-label="Sound on (M)">🔊</button>
+<body data-state="menu">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 120 120" aria-hidden="true">
+        <path d="M60 60 L8 60 A52 52 0 0 1 60 8 Z" fill="#22A55B" />
+        <path d="M60 60 L60 8 A52 52 0 0 1 112 60 Z" fill="#E5484D" />
+        <path d="M60 60 L8 60 A52 52 0 0 0 60 112 Z" fill="#F5C518" />
+        <path d="M60 60 L112 60 A52 52 0 0 1 60 112 Z" fill="#3B82F6" />
+        <path d="M60 4 V116 M4 60 H116" stroke="#FFF7E8" stroke-width="7" />
+        <circle cx="60" cy="60" r="22" fill="#1F2A44" stroke="#FFF7E8" stroke-width="6" />
+      </svg>
+      <span class="brand-name">Simon Game</span>
+    </div>
+    <div class="topbar-actions">
+      <button type="button" class="icon-button records-button" aria-label="Leaderboard">🏆</button>
+      <button type="button" class="icon-button sound-button" aria-pressed="true" aria-label="Sound on (M)">🔊</button>
+    </div>
+  </header>
 
-  <h1 id="level-title">Press Space Key to Start</h1>
-  <p class="status" aria-live="polite"></p>
+  <main class="stage">
+    <h1 id="level-title">Press Start</h1>
+    <p class="status" aria-live="polite"></p>
 
-  <div class="menu">
-    <div class="message" aria-live="polite"></div>
-    <label class="field">
-      <span class="field-label">Player name</span>
-      <input type="text" class="name-input" maxlength="12" placeholder="Your name" autocomplete="nickname" spellcheck="false">
-    </label>
-    <fieldset class="field">
-      <legend class="field-label">Difficulty</legend>
-      <div class="levels">
-        <label class="level">
+    <div class="container">
+      <button type="button" id="green" class="btn green" aria-label="Green"><span class="key">Q</span></button>
+      <button type="button" id="red" class="btn red" aria-label="Red"><span class="key">W</span></button>
+      <button type="button" id="yellow" class="btn yellow" aria-label="Yellow"><span class="key">A</span></button>
+      <button type="button" id="blue" class="btn blue" aria-label="Blue"><span class="key">S</span></button>
+      <button type="button" class="board-center"><span class="center-label">START</span></button>
+    </div>
+
+    <!-- Menu: who is playing and how fast -->
+    <section class="setup" aria-label="Game settings">
+      <label class="player-tag">
+        <span class="player-tag-label">Player</span>
+        <input type="text" class="name-input" maxlength="12" placeholder="Your name" autocomplete="nickname" spellcheck="false">
+      </label>
+      <div class="skill" role="radiogroup" aria-label="Difficulty">
+        <label class="skill-option">
           <input type="radio" name="difficulty" value="easy">
-          <span class="level-box"><span class="level-name">Easy</span><span class="level-text">Slow sequence</span></span>
+          <span class="skill-pill"><span class="led"></span>Easy</span>
         </label>
-        <label class="level">
+        <label class="skill-option">
           <input type="radio" name="difficulty" value="normal">
-          <span class="level-box"><span class="level-name">Normal</span><span class="level-text">Classic speed</span></span>
+          <span class="skill-pill"><span class="led"></span>Normal</span>
         </label>
-        <label class="level">
+        <label class="skill-option">
           <input type="radio" name="difficulty" value="hard">
-          <span class="level-box"><span class="level-name">Hard</span><span class="level-text">Fast sequence</span></span>
+          <span class="skill-pill"><span class="led"></span>Hard</span>
         </label>
       </div>
-    </fieldset>
-    <p class="best-line"></p>
-    <div class="actions">
-      <button type="button" class="start-button">Start</button>
-      <button type="button" class="records-button">🏆 Records</button>
-    </div>
+      <p class="best-line"></p>
+    </section>
+
+    <!-- Game over: the result stays until the player picks what to do -->
+    <section class="result" aria-live="polite">
+      <p class="result-score"><span class="result-number">0</span><span class="result-caption">levels completed</span></p>
+      <p class="result-note"></p>
+      <div class="result-actions">
+        <button type="button" class="again-button">Play Again <kbd>Space</kbd></button>
+        <button type="button" class="menu-button">Menu <kbd>Esc</kbd></button>
+      </div>
+    </section>
+
     <p class="help"></p>
-  </div>
+  </main>
 
-  <div class="records hide">
-    <p class="records-title">🏆 Records</p>
-    <div class="records-filter" role="group" aria-label="Difficulty">
-      <button type="button" class="filter-button" data-difficulty="easy">Easy</button>
-      <button type="button" class="filter-button" data-difficulty="normal">Normal</button>
-      <button type="button" class="filter-button" data-difficulty="hard">Hard</button>
-    </div>
-    <div class="records-grid">
-      <div class="records-card">
-        <h2>Top 10</h2>
-        <ol class="records-list top-list"></ol>
+  <div class="records hide" role="dialog" aria-modal="true" aria-labelledby="records-title">
+    <div class="records-panel">
+      <div class="records-head">
+        <h2 id="records-title">🏆 Leaderboard</h2>
+        <button type="button" class="icon-button close-button" aria-label="Close">✕</button>
       </div>
-      <div class="records-card">
-        <h2>Recent games</h2>
-        <ol class="records-list recent-list"></ol>
+      <div class="records-filter" role="group" aria-label="Difficulty">
+        <button type="button" class="filter-button" data-difficulty="easy"><span class="led"></span>Easy</button>
+        <button type="button" class="filter-button" data-difficulty="normal"><span class="led"></span>Normal</button>
+        <button type="button" class="filter-button" data-difficulty="hard"><span class="led"></span>Hard</button>
       </div>
+      <ol class="leaderboard"></ol>
+      <p class="last-game"></p>
     </div>
-    <button type="button" class="back-button">Back</button>
-  </div>
-
-  <div class="container hide">
-    <button type="button" id="green" class="btn green" aria-label="Green"><span class="key">Q</span></button>
-    <button type="button" id="red" class="btn red" aria-label="Red"><span class="key">W</span></button>
-    <button type="button" id="yellow" class="btn yellow" aria-label="Yellow"><span class="key">A</span></button>
-    <button type="button" id="blue" class="btn blue" aria-label="Blue"><span class="key">S</span></button>
   </div>
 </body>
 </html>

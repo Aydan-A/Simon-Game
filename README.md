@@ -7,11 +7,12 @@ This project is a simple Simon Game, where users must replicate a sequence of co
 ## Features
 - Randomly generated color sequence that increases in length as the player progresses.
 - Interactive buttons that light up and play sounds when clicked.
-- Start screen with a player name and a difficulty: Easy, Normal or Hard (how fast the sequence is shown).
+- Light, playful design with a round Simon board; on the start screen the colours light up and the center of the board is the Start button.
+- Player name tag and a difficulty switch: Easy, Normal or Hard (how fast the sequence is shown).
 - Play with the mouse, by tapping on a phone, or with the keyboard: `Q` `W` / `A` `S`.
 - Clicks while the sequence is playing are ignored, so you can't lose by accident.
-- Game over state with your score, and Space or **Play Again** to restart.
-- Records screen with a Top 10 and recent games for each difficulty, saved in the browser.
+- Game over screen with the levels you completed and your best, which stays until you choose **Play Again** (`Space`) or **Menu** (`Esc`).
+- 🏆 Leaderboard for each difficulty: a clear Top 10 with medals for the first three and your last game, saved in the browser.
 - Sound on / off with the 🔊 button or `M`.
 
 ## Game Flow
@@ -22,10 +23,10 @@ This project is a simple Simon Game, where users must replicate a sequence of co
 ## Controls
 | Key | Action |
 | --- | --- |
-| `Space` / `Enter` | Start or restart |
+| `Space` / `Enter` | Start, or play again after a game over |
 | `Q` `W` / `A` `S` | Green, Red / Yellow, Blue |
 | `M` | Sound on / off |
-| `Esc` | Quit to the menu, or leave Records |
+| `Esc` | Quit to the menu, or close the leaderboard |
 
 ## Screenshot
 

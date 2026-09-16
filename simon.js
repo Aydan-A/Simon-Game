@@ -41,10 +41,15 @@ $('input[name="difficulty"]').on("change", function () {
   updateBestLine();
 });
 
-$(".start-button").click(startGame);
-$(".records-button").click(showRecords);
-$(".back-button").click(function () {
+$(".board-center, .again-button").click(startGame);
+$(".menu-button").click(function () {
   showMenu();
+});
+$(".records-button").click(showRecords);
+$(".close-button").click(closeRecords);
+$(".records").click(function (e) {
+  // A click on the dark backdrop closes the leaderboard
+  if (e.target === this) closeRecords();
 });
 $(".sound-button").click(toggleSound);
 $(".filter-button").click(function () {
@@ -62,10 +67,13 @@ $(document).keydown(function (e) {
   var key = e.key.toLowerCase();
 
   if (key === "escape") {
-    if (!$(".records").hasClass("hide")) showMenu();
+    if (recordsOpen()) closeRecords();
     else if (started) quitGame();
+    else if (gameState() === "over") showMenu();
     return;
   }
+
+  if (recordsOpen()) return;
 
   // Enter in the name field starts the game, other keys are just typing
   if (typing && key !== "enter") return;
@@ -75,8 +83,8 @@ $(document).keydown(function (e) {
     return;
   }
 
-  // Space or Enter starts from the menu, and right after a game over too
-  if (!started && (key === " " || key === "enter") && $(".records").hasClass("hide")) {
+  // Space or Enter starts from the menu and plays again after a game over
+  if (!started && (key === " " || key === "enter")) {
     // A focused button handles Enter itself
     if (key === "enter" && $(e.target).is("button")) return;
     e.preventDefault();
@@ -118,23 +126,25 @@ function setStatus(text) {
   $(".status").text(text);
 }
 
-function showMenu(lines) {
-  $(".records").addClass("hide");
-  $(".container").addClass("hide");
-  $(".menu").removeClass("hide");
-  var message = $(".message").empty();
-  (lines || []).forEach(function (line) {
-    $("<p>").text(line[0]).addClass(line[1]).appendTo(message);
-  });
-  if (!lines) {
-    $("#level-title").text(isTouchScreen() ? "Press Start to Play" : "Press Space Key to Start");
-  }
+// "menu", "playing" or "over"; the CSS shows the right parts for each
+function gameState() {
+  return $("body").attr("data-state");
+}
+
+function setGameState(state) {
+  $("body").attr("data-state", state);
+}
+
+function showMenu() {
+  clearTimers();
+  setGameState("menu");
+  $("#level-title").text(isTouchScreen() ? "Tap Start" : "Press Space Key to Start");
   setStatus("");
-  $(".start-button").text(lines ? "Play Again" : "Start");
+  $(".center-label").text("START");
   $(".help").text(
     isTouchScreen()
       ? "Watch the colours, then tap them in the same order."
-      : "Watch the colours, then repeat them with the mouse or Q W / A S. Space to start, M for sound, Esc to quit.",
+      : "Watch the colours, then repeat them with the mouse or Q W / A S.  M sound · Esc quit",
   );
   updateBestLine();
 }
@@ -142,16 +152,15 @@ function showMenu(lines) {
 function updateBestLine() {
   var best = bestScore(settings.difficulty);
   var label = difficulty().label;
-  $(".best-line").text(best > 0 ? "Best on " + label + ": level " + best : "No " + label + " games yet. Set the first record!");
+  $(".best-line").text(best > 0 ? "🏅 Best on " + label + ": level " + best : "No " + label + " games yet. Be the first!");
 }
 
 function startGame() {
-  if (started) return;
+  if (started || recordsOpen()) return;
   clearTimers();
   startOver();
   $("body").removeClass("game-over");
-  $(".menu, .records").addClass("hide");
-  $(".container").removeClass("hide");
+  setGameState("playing");
   if (document.activeElement) document.activeElement.blur();
   started = true;
   nextSequence();
@@ -190,6 +199,7 @@ function nextSequence() {
   acceptingInput = false;
   level++;
   $("#level-title").text("Level " + level);
+  $(".center-label").text(level);
   setStatus("Watch...");
   var randomChosenColour = buttonColours[Math.floor(Math.random() * 4)];
   gamePattern.push(randomChosenColour);
@@ -216,18 +226,22 @@ function gameOver() {
   setTimeout(function () {
     $("body").removeClass("game-over");
   }, 1000);
-  $("#level-title").text(isTouchScreen() ? "Game Over" : "Game Over, Press Space to Restart");
-  setStatus("");
   saveGame(score);
 
-  later(function () {
-    showMenu(
-      [
-        [playerName() + ", you completed " + score + (score === 1 ? " level" : " levels") + " on " + difficulty().label + ".", "hint"],
-        score > previousBest ? ["New best score!", "new-best"] : null,
-      ].filter(Boolean),
-    );
-  }, 1000);
+  // Stay on the result until the player chooses Play Again or Menu
+  setGameState("over");
+  $("#level-title").text("Game Over");
+  setStatus(playerName() + " · " + difficulty().label);
+  $(".center-label").text("↻");
+  $(".result-number").text(score);
+  $(".result-caption").text(score === 1 ? "level completed" : "levels completed");
+  var best = Math.max(score, previousBest);
+  $(".result").toggleClass("new-best", score > previousBest);
+  $(".result-note").text(
+    score > previousBest
+      ? "🎉 New best on " + difficulty().label + "!"
+      : "Best on " + difficulty().label + ": level " + best,
+  );
 }
 
 function playSound(name) {
@@ -266,37 +280,48 @@ function updateSoundButton() {
     .attr("aria-label", settings.sound ? "Sound on (M)" : "Sound off (M)");
 }
 
+function recordsOpen() {
+  return !$(".records").hasClass("hide");
+}
+
 function showRecords() {
+  if (started) return;
   fillRecords(settings.difficulty);
-  $(".menu").addClass("hide");
   $(".records").removeClass("hide");
-  $("#level-title").text("Records");
-  $(".back-button").focus();
+  $(".close-button").focus();
+}
+
+function closeRecords() {
+  $(".records").addClass("hide");
+  $(".records-button").focus();
 }
 
 function fillRecords(level) {
   var records = loadRecords().filter((record) => record.difficulty === level);
   var top = records.slice().sort((a, b) => b.score - a.score).slice(0, 10);
-  var recent = records.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, 10);
-  fillList($(".top-list"), top, true);
-  fillList($(".recent-list"), recent, false);
+  var recent = records.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, 1);
+  var medals = ["🥇", "🥈", "🥉"];
+
+  var list = $(".leaderboard").empty();
+  if (top.length === 0) {
+    $("<li>").addClass("empty").text("No " + difficulties[level].label + " games yet. Play one and take first place!").appendTo(list);
+  }
+  top.forEach((record, index) => {
+    var row = $("<li>").toggleClass("first", index === 0);
+    $("<span>").addClass("rank").text(medals[index] || index + 1).appendTo(row);
+    var name = $("<span>").addClass("row-name");
+    $("<span>").text(record.name).appendTo(name);
+    $("<span>").addClass("row-date").text(formatDate(record.date)).appendTo(name);
+    name.appendTo(row);
+    $("<span>").addClass("row-level").text("Level " + record.score).appendTo(row);
+    row.appendTo(list);
+  });
+
+  var last = recent[0];
+  $(".last-game").text(last ? "Last game: " + last.name + " · Level " + last.score + " · " + formatDate(last.date) : "");
+
   $(".filter-button").each(function () {
     $(this).attr("aria-pressed", String($(this).data("difficulty") === level));
-  });
-}
-
-function fillList(list, records, numbered) {
-  list.empty();
-  if (records.length === 0) {
-    $("<li>").addClass("empty").text("No games yet.").appendTo(list);
-    return;
-  }
-  records.forEach((record, index) => {
-    var who = $("<span>").addClass("who");
-    $("<span>").addClass("player").text((numbered ? index + 1 + ". " : "") + record.name).appendTo(who);
-    $("<span>").addClass("when").text(formatDate(record.date)).appendTo(who);
-    var score = $("<span>").addClass("score").text("Level " + record.score);
-    $("<li>").append(who, score).appendTo(list);
   });
 }
 
