@@ -5,27 +5,67 @@
 body {
   text-align: center;
   background-color: #011F3F;
+  color: #FEF2BF;
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.hide {
+  display: none !important;
 }
 
 #level-title {
   font-family: 'Press Start 2P', cursive;
-  font-size: 2rem;
+  font-size: clamp(1.1rem, 4vw, 2rem);
+  line-height: 1.4;
   margin:  3%;
   color: #FEF2BF;
 }
 
+.status {
+  min-height: 1.5em;
+  margin: 0 auto 16px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(0.7rem, 2vw, 0.9rem);
+  color: #9fc3e8;
+}
+
 .container {
-  display: flex;
-  width: 50%;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: min(480px, 100%);
 }
 
 .btn {
-  height: 150px;
-  width: 200px;
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 4 / 3;
+  height: auto;
   border: 10px solid black;
   border-radius: 20%;
-  margin: 10px;
+  margin: 0 auto;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn:focus-visible {
+  outline: 4px solid #FEF2BF;
+  outline-offset: 2px;
+}
+
+.key {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.55);
 }
 
 .game-over {
@@ -49,7 +89,370 @@ body {
   background-color: yellow;
 }
 
+/* The button lights up in its own colour */
 .pressed {
-  box-shadow: 0 0 20px rgb(7, 230, 52);
-  background-color:  rgb(140, 107, 170);
+  box-shadow: 0 0 25px #FEF2BF;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55));
+}
+
+/* Sound on / off */
+.sound-button {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+  line-height: 1;
+  background-color: rgba(254, 242, 191, 0.1);
+  border: 2px solid rgba(254, 242, 191, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* Menu and records cards */
+.menu,
+.records {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(560px, 100%);
+  padding: clamp(18px, 4vw, 32px);
+  box-sizing: border-box;
+  background-color: #0b2e55;
+  border: 2px solid #1d4a7a;
+  border-radius: 16px;
+  line-height: 1.45;
+}
+
+.records {
+  width: min(820px, 100%);
+}
+
+/* The margin: auto rule at the top would shrink everything in the cards */
+.menu *,
+.records * {
+  margin: 0;
+}
+
+.menu > *,
+.records > * {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.back-button {
+  align-self: center;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.message p,
+.best-line,
+.help {
+  margin: 0;
+}
+
+.hint {
+  font-size: 1.1rem;
+}
+
+.new-best {
+  font-weight: bold;
+  color: #7ee0a1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  text-align: left;
+}
+
+.field-label {
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9fc3e8;
+}
+
+.name-input {
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #FEF2BF;
+  background-color: #011F3F;
+  border: 2px solid #1d4a7a;
+  border-radius: 10px;
+}
+
+.name-input::placeholder {
+  font-weight: normal;
+  color: #6f8fb0;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: #FEF2BF;
+}
+
+.levels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.level {
+  position: relative;
+  cursor: pointer;
+}
+
+.level input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.level-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding: 10px 6px;
+  box-sizing: border-box;
+  text-align: center;
+  background-color: #011F3F;
+  border: 2px solid #1d4a7a;
+  border-radius: 10px;
+}
+
+.level-name {
+  font-weight: bold;
+}
+
+.level-text {
+  font-size: 0.8rem;
+  color: #9fc3e8;
+}
+
+.level input:checked + .level-box {
+  color: #011F3F;
+  background-color: #FEF2BF;
+  border-color: #FEF2BF;
+}
+
+.level input:checked + .level-box .level-text {
+  color: #3a4a5c;
+}
+
+.level input:focus-visible + .level-box {
+  outline: 3px solid #9fc3e8;
+  outline-offset: 2px;
+}
+
+.best-line {
+  font-weight: bold;
+  color: #9fc3e8;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.start-button,
+.records-button,
+.back-button {
+  min-height: 54px;
+  margin: 0;
+  padding: 12px 20px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  border: 2px solid #FEF2BF;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.start-button {
+  flex: 1 1 200px;
+  color: #011F3F;
+  background-color: #FEF2BF;
+}
+
+.records-button,
+.back-button {
+  color: #FEF2BF;
+  background-color: transparent;
+}
+
+.records-button {
+  flex: 0 1 200px;
+}
+
+.back-button {
+  width: min(100%, 240px);
+}
+
+.help {
+  font-size: 0.85rem;
+  color: #9fc3e8;
+}
+
+.records-title {
+  margin: 0;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 1.1rem;
+}
+
+.records-filter {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background-color: #011F3F;
+  border-radius: 10px;
+}
+
+.filter-button {
+  flex: 1;
+  min-height: 40px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #FEF2BF;
+  background-color: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.filter-button[aria-pressed="true"] {
+  color: #011F3F;
+  background-color: #FEF2BF;
+}
+
+.records-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.records-card {
+  padding: 12px;
+  text-align: left;
+  background-color: #011F3F;
+  border-radius: 12px;
+}
+
+.records-card h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #9fc3e8;
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.records-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 8px 10px;
+  background-color: #0b2e55;
+  border-radius: 8px;
+}
+
+.records-list .who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+}
+
+.records-list .player {
+  margin: 0;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.records-list .when {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #9fc3e8;
+}
+
+.records-list .score {
+  margin: 0;
+  flex-shrink: 0;
+  font-weight: bold;
+}
+
+.records-list .empty {
+  justify-content: center;
+  color: #9fc3e8;
+  background-color: transparent;
+}
+
+/* No keyboard on phones, so no key hints */
+@media (pointer: coarse) {
+  .key {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Leave room for the sound button */
+  #level-title {
+    padding: 0 44px;
+  }
+
+  .container {
+    gap: 12px;
+  }
+
+  .btn {
+    border-width: 7px;
+  }
+
+  .records-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .records-button {
+    flex: 1 1 100%;
+  }
+
+  .sound-button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
 }
